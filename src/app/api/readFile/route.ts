@@ -13,8 +13,8 @@ export async function GET(request: Request) {
   const matterResult = file && matter(file);
   const payload = matterResult && {
     slug,
+    ...matterResult,
     data: { ...matterResult.data },
-    content: { ...matterResult },
   };
   return Response.json(payload);
 }

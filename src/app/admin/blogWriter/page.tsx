@@ -18,7 +18,7 @@ const BlogWriter = () => {
   } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
-      const res = await fetch('http://localhost:3000/api/', {
+      const res = await fetch('http://localhost:3000/api/writePost', {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {

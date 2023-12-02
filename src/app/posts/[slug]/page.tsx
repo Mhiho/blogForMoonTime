@@ -1,10 +1,5 @@
 'use client';
-import { getPostData } from '@/app/lib/getFiles';
 import { ComponentFactory, useEffect, useState } from 'react';
-import { remark } from 'remark';
-import html from 'remark-html';
-import { Compatible } from 'vfile';
-import { useRouter } from 'next/navigation';
 import { useRemark } from 'react-remark';
 
 interface Params {
@@ -12,9 +7,18 @@ interface Params {
     slug: string;
   };
 }
+export interface Post {
+  slug: string;
+  data: {
+    title: string;
+    subtitle: string;
+    date: string;
+  };
+  content: string;
+}
 
 const Post = ({ params }: Params) => {
-  const [post, setPost] = useState({});
+  const [post, setPost] = useState<Post>();
   const [content, setContent] = useRemark();
 
   useEffect(() => {
@@ -23,10 +27,10 @@ const Post = ({ params }: Params) => {
       .then((data) => {
         setPost(data);
       });
-    post && post.content && setContent(post.content.content);
-  }, [params.slug, post.content]);
+    post && post.content && setContent(post.content);
+  }, [params.slug, post, setContent]);
 
-  if (post.data) {
+  if (post) {
     return (
       <>
         <h1>{post.data.title}</h1>
@@ -39,7 +43,3 @@ const Post = ({ params }: Params) => {
 };
 
 export default Post;
-
-export async function getStaticPaths({ params }) {
-  console.log(params);
-}
