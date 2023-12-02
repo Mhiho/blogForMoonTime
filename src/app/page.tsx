@@ -1,19 +1,14 @@
 'use client';
 
-import { useSelectedLayoutSegments } from 'next/navigation';
+import Layout from './hoc/Layout';
 
-const ExampleClientComponent = () => {
-  const segments = useSelectedLayoutSegments('/');
-  console.log(segments);
+const Home = () => {
   return (
     <>
-      <h1>lista</h1>
-      <ul>
-        {segments.map((segment, index) => (
-          <li key={index}>{segment}</li>
-        ))}
-      </ul>
+      <Layout>
+        <>home</>
+      </Layout>
     </>
   );
 };
-export default ExampleClientComponent;
+export default Home;
