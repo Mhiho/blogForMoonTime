@@ -1,4 +1,7 @@
 'use client';
+import { getToken, sessionStatus } from '@/auth';
+import { redirect } from 'next/navigation';
+import { useLayoutEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
 interface Inputs {
@@ -9,6 +12,7 @@ interface Inputs {
 }
 
 const BlogWriter = () => {
+  const [session, setSession] = useState(true);
   const {
     register,
     handleSubmit,
@@ -18,7 +22,7 @@ const BlogWriter = () => {
   } = useForm<Inputs>();
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
-      const res = await fetch('http://localhost:3000/api/writePost', {
+      const res = await fetch('/api/writePost', {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
@@ -35,6 +39,11 @@ const BlogWriter = () => {
       console.log(error);
     }
   };
+  const item = getToken();
+  useLayoutEffect(() => {
+    sessionStatus().then((res) => setSession(res));
+    if (!session) redirect('/');
+  }, [session]);
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>

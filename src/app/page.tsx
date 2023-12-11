@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from 'antd';
 import Layout from './hoc/Layout';
 
 const Home = () => {
@@ -7,6 +8,7 @@ const Home = () => {
     <>
       <Layout>
         <>home</>
+        <Button type='primary'>Coś</Button>
       </Layout>
     </>
   );

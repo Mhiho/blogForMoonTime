@@ -1,8 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   webpack: function (config, options) {
-    console.log(options.webpack.version); // Should be webpack v5 now
-    config.experiments = { layers: true };
+    (config.experiments = { layers: true }),
+      (config.resolve.fallback = {
+        dns: false,
+        net: false,
+        tls: false,
+      });
     return config;
   },
 };
