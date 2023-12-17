@@ -1,41 +1,39 @@
 'use client';
-import { Breadcrumb, Button } from 'antd';
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { Button } from 'antd';
+import { useEffect, useState } from 'react';
 import { Post } from '../posts/[slug]/page';
-import { getToken, sessionStatus } from '@/auth';
 import Link from 'next/link';
+import { deleteToken } from '@/ helpers/deleteToken';
+import { getToken } from '@/ helpers/getToken';
+import { useRouter } from 'next/navigation';
 
-export const Navbar = () => {
+const Navbar = () => {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [session, setSession] = useState(false);
-  const logoutHandler = useCallback(async () => {
-    if (session) {
-      const logout = await fetch('/api/logout', {
-        method: 'POST',
-        body: JSON.stringify(getToken()),
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-      if (logout.ok) setSession(false);
-    }
-  }, [session]);
+  const [visibleLogout, setVisibleLogout] = useState(false);
+
+  const router = useRouter();
+
+  const logoutHandler = async () => {
+    deleteToken();
+    setVisibleLogout(false);
+    router.push('/');
+  };
 
   useEffect(() => {
-    const getToken = async () => {
-      const token = await fetch('/api/token');
-      if (token) setSession(true);
+    const helper = async () => {
+      const data = await fetch('/api/readFiles');
+      setPosts(await data.json());
     };
-    getToken();
+    helper();
   }, []);
-
   useEffect(() => {
-    fetch('/api/readFiles')
-      .then((res) => res.json())
-      .then((data) => {
-        setPosts(data);
-      });
-  }, []);
+    const helper = async () => {
+      const token = await Promise.resolve(getToken());
+      if (token) setVisibleLogout(true);
+      if (!token) setVisibleLogout(false);
+    };
+    helper();
+  }, [setVisibleLogout]);
 
   const subItems = posts.map((post) => {
     return { path: `/${post.slug}`, element: post.data.title };
@@ -59,13 +57,16 @@ export const Navbar = () => {
   ];
   return (
     <>
-      {session && <Button onClick={() => logoutHandler()}>Logout</Button>}
-      {!session && (
+      {!visibleLogout ? (
         <Button>
-          <Link href='/admin/login'>Login</Link>
+          <Link href='/login'>Login</Link>
         </Button>
+      ) : (
+        <Button onClick={() => logoutHandler()}>Logout</Button>
       )}
-      <Breadcrumb items={items} />
+      {/* <Breadcrumb items={items} /> */}
     </>
   );
 };
+
+export default Navbar;

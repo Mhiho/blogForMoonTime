@@ -1,8 +1,8 @@
 'use client';
-import { getToken, sessionStatus } from '@/auth';
-import { redirect } from 'next/navigation';
-import { useLayoutEffect, useState } from 'react';
+import Layout from '@/app/hoc/Layout';
+import { useContext } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { Suspense } from 'react';
 
 interface Inputs {
   title: string;
@@ -12,7 +12,6 @@ interface Inputs {
 }
 
 const BlogWriter = () => {
-  const [session, setSession] = useState(true);
   const {
     register,
     handleSubmit,
@@ -31,42 +30,43 @@ const BlogWriter = () => {
       });
       console.log(res);
       if (res.ok) {
-        console.log('Yeai!');
+        console.log('submited');
       } else {
-        console.log('Oops! Something is wrong.');
+        console.log('response not ok');
       }
     } catch (error) {
       console.log(error);
     }
   };
-  const item = getToken();
-  useLayoutEffect(() => {
-    sessionStatus().then((res) => setSession(res));
-    if (!session) redirect('/');
-  }, [session]);
   return (
-    <>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <label>Post title</label>
-        <input {...register('title', { required: true })} />
-        <label>Post date</label>
-        <input
-          type='date'
-          defaultValue={new Date().toISOString().split('T')[0]}
-          {...register('date', { required: true })}
-        />
-        <label>Post subtitle</label>
-        <input {...register('subtitle', { required: false })} />
-        <label>Post content</label>
-        <textarea
-          style={{ height: '400px', width: '400px' }}
-          {...register('content', { required: true })}
-        />
-        {errors.title && errors.content && <span>This field is required</span>}
+    <Suspense fallback={<p>Loading...</p>}>
+      <Layout>
+        <>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <label>Post title</label>
+            <input {...register('title', { required: true })} />
+            <label>Post date</label>
+            <input
+              type='date'
+              defaultValue={new Date().toISOString().split('T')[0]}
+              {...register('date', { required: true })}
+            />
+            <label>Post subtitle</label>
+            <input {...register('subtitle', { required: false })} />
+            <label>Post content</label>
+            <textarea
+              style={{ height: '400px', width: '400px' }}
+              {...register('content', { required: true })}
+            />
+            {errors.title && errors.content && (
+              <span>This field is required</span>
+            )}
 
-        <input type='submit' />
-      </form>
-    </>
+            <input type='submit' />
+          </form>
+        </>
+      </Layout>
+    </Suspense>
   );
 };
 export default BlogWriter;

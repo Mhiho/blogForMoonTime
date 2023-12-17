@@ -1,17 +1,20 @@
 'use client';
-import { AuthContext, useAuthContext } from '@/app/hoc/Context';
-import { useContext, useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-import { getToken, sessionStatus, setToken } from '@/auth';
+import { setToken } from '@/ helpers/setToken';
+import { loginData } from '@/db/configuration';
+import { getToken } from '@/ helpers/getToken';
+import { useEffect, useState } from 'react';
 
 interface Inputs {
   login: string;
   password: string;
 }
 const Login = () => {
+  const login = process.env.NEXT_PUBLIC_LOGIN;
+  const password = process.env.NEXT_PUBLIC_PASSWORD;
+  const [submited, setSubmited] = useState(false);
   const router = useRouter();
-
   const {
     register,
     handleSubmit,
@@ -22,24 +25,33 @@ const Login = () => {
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-      if (res.ok) {
-        const token = await res.json();
+      let res;
+      if (data.login === login && data.password === password) {
+        res = await fetch('/api/proxy/login', {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: {
+            'content-type': 'application/json',
+          },
+        });
+      }
+      if (res && res.ok) {
+        const { token } = await res.json();
         setToken(token);
-        router.push('/admin');
+        setSubmited(true);
       } else {
-        console.log('Oops! Something is wrong.');
+        console.log('response not ok');
       }
     } catch (error) {
       console.log(error);
     }
   };
+  console.log(submited);
+  useEffect(() => {
+    const token = Promise.resolve(getToken());
+    token.then((res) => res && setSubmited(true));
+    submited && router.push('/');
+  }, [router, submited]);
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>

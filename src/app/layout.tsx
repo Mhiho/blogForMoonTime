@@ -4,7 +4,6 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { ConfigProvider } from 'antd';
 import theme from './theme/themeConfig';
-import { AuthProvider } from './hoc/Context';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,11 +19,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en'>
-      <AuthProvider>
-        <ConfigProvider theme={theme}>
-          <body className={inter.className}>{children}</body>
-        </ConfigProvider>
-      </AuthProvider>
+      <ConfigProvider theme={theme}>
+        <body className={inter.className}>{children}</body>
+      </ConfigProvider>
     </html>
   );
 }
